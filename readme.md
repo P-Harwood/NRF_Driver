@@ -1,34 +1,74 @@
 nRF24L01+ Driver (ESP32)
 
-Small C++ driver for the nRF24L01+ 2.4 GHz transceiver, written for the ESP32 using the ESP-IDF framework.
-The code is largely compatible with other micro controller boards, just needs the SPI command logic to change. In future I intend to abstract the hardware logic.
+A compact C++ driver for the nRF24L01+ 2.4 GHz transceiver, written for the ESP32 using the ESP-IDF
+framework. The SPI layer is separated so the core radio logic can be reused on other MCU platforms with
+minimal changes to the SPI command logic.
 
-This project was built to understand SPI communication and radio register control at a low level — no external NRF libraries are used, this was just from the datasheet.
+This project was built to understand SPI communication and radio register control at a low level (no
+external NRF libraries are used; everything is derived from the datasheet).
 
-Features
+---
 
-Basic SPI communication layer (spi_object wrapper with mutex)
+## Highlights
 
-Manual CE/CSN pin control
+- Minimal, datasheet-driven implementation
+- Explicit CE/CSN pin control for clear timing
+- RX/TX mode switching with FIFO management
+- Optional full register dump for diagnostics
+- Thread-safe SPI wrapper (mutex-based)
 
-Initialization and configuration of key registers
+---
 
-Transmit and receive modes with mode switching
+## Project Structure
 
-RX/TX FIFO management and diagnostic logging
+- `spi_object.*` — SPI initialization and transaction wrapper
+- `nRF24L01P.*` — radio driver (register setup, RX/TX handling)
 
-Optional full register dump for debugging
+---
 
-Structure
+## Hardware Setup
 
-spi_object.* — sets up and manages SPI transactions
+This driver expects a standard nRF24L01+ module connected to the ESP32 SPI peripheral.
 
-nRF24L01P.* — driver for the radio (register setup, RX/TX handling)
+Default SPI pin assignments in `spi_object`:
 
-Notes
+- **MOSI** → GPIO 13
+- **MISO** → GPIO 12
+- **SCK** → GPIO 14
+- **CSN** → GPIO 5 (SPI device select)
 
-Written for ESP-IDF (C++), tested with FreeRTOS tasks.
+Pins that are user-defined via `Pins_T` in `nRF24L01P`:
 
-Designed for clarity and experimentation, not production.
+- **CE** → configurable GPIO (radio enable)
+- **IRQ** → optional GPIO (interrupt line)
 
-Dynamic payloads and encryption sections are stubbed for later expansion.
+Minimum wiring:
+
+- **VCC** → 3.3V (do *not* use 5V)
+- **GND** → GND
+- **MOSI/MISO/SCK** → ESP32 SPI pins
+- **CSN** → GPIO 5 by default (or update `spi_object`)
+- **CE** → configurable GPIO (radio enable, set in `Pins_T`)
+- **IRQ** → optional GPIO (used for interrupts if desired, set in `Pins_T`)
+
+Recommended: place a 10µF capacitor across VCC/GND on the module for stability.
+
+---
+
+## Current Status
+
+This is a learning-focused driver and is **not production-ready**. It aims to be readable and easy to
+extend, rather than exhaustive. Areas that are intentionally stubbed or minimal:
+
+- Dynamic payloads
+- Auto-ack and retransmit tuning
+- Encryption and higher-level protocols
+- Robust interrupt-driven RX handling
+
+---
+
+## Troubleshooting Notes
+
+- If you see unreliable RX/TX, double-check wiring, power stability, and antenna orientation.
+- nRF24L01+ modules are sensitive to power noise; the decoupling capacitor helps a lot.
+- SPI timing is platform-specific; some boards need slower SPI clock rates.
