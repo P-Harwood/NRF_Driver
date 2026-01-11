@@ -44,7 +44,7 @@ Pins that are user-defined via `Pins_T` in `nRF24L01P`:
 
 Minimum wiring:
 
-- **VCC** → 3.3V (do *not* use 5V)
+- **VCC** → 3.3V (do not use 5V)
 - **GND** → GND
 - **MOSI/MISO/SCK** → ESP32 SPI pins
 - **CSN** → GPIO 5 by default (or update `spi_object`)
@@ -57,7 +57,7 @@ Recommended: place a 10µF capacitor across VCC/GND on the module for stability.
 
 ## Current Status
 
-This is a learning-focused driver and is **not production-ready**. It aims to be readable and easy to
+This is a learning-focused driver. It aims to be readable and easy to
 extend, rather than exhaustive. Areas that are intentionally stubbed or minimal:
 
 - Dynamic payloads
